@@ -36,9 +36,15 @@ const Login = () => {
           <form onSubmit={handleLogin}>
             <h4 className='text-2xl mb-7'>Login</h4>
 
-            <input type="text" placeholder='Email' className='input-box' value={email} onChange={(e) => setEmail(e.target.value)} />
+            <input
+              type="text"
+              placeholder='Email'
+              className='input-box'
+              value={email} onChange={(e) => setEmail(e.target.value)} />
 
-            <PasswordInput value={password} onChange={(e) => setPassword(e.target.value)} />
+            <PasswordInput
+              value={password}
+              onChange={(e) => setPassword(e.target.value)} />
 
             {error && <p className='text-red-500 text-sx pb-1'>{error}</p>}
 
