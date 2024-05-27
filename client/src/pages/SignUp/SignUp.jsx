@@ -1,18 +1,19 @@
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import Navbar from '~/components/Navbar/Navbar'
 import PasswordInput from '~/input/PasswordInput'
 import { validateEmail } from '~/utils/helper'
+import axiosIntance from '~/services/axiosInstance'
 
 const SignUp = () => {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState(null)
+  const navigate = useNavigate()
 
   const handleSignUp = async (e) => {
-    e.prventDefault()
-
+    e.preventDefault()
     if (!name) {
       setError('Please enter your name.')
       return
@@ -29,9 +30,28 @@ const SignUp = () => {
     }
 
     setError('')
-
     // Sign Up Api..
+    try {
+      const response = await axiosIntance.post('/auth/create-account', { fullName: name, email, password })
+
+      if (response.data && response.data.error) {
+        setError(response.data.msg)
+        return
+      }
+
+      if (response.data && response.data.accessToken) {
+        localStorage.setItem('token', response.data.accessToken)
+        navigate('/dashboard')
+      }
+    } catch (error) {
+      if (error.response && error.response.data && error.response.data.msg) {
+        setError(error.response.data.msg)
+      } else {
+        setError('An unexpected error occurred. Please try again')
+      }
+    }
   }
+
   return (
     <>
       <Navbar />
@@ -60,6 +80,8 @@ const SignUp = () => {
             <PasswordInput
               value={password}
               onChange={(e) => setPassword(e.target.value)} />
+
+            {error && <p className='text-red-500 text-sx pb-1'>{error}</p>}
 
             <button type='submit' className='btn-primary'>
               Create Account

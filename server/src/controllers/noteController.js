@@ -102,3 +102,26 @@ exports.updatePinned = async (req, res) => {
     return res.status(500).json({ error: err.message })
   }
 }
+
+exports.search = async (req, res) => {
+  try {
+    const user = req.user
+    const { query } = req.query
+    if (!query) return res.status(400).json({ msg: 'Search query is required' })
+
+    const matchingNotes = await noteModel.find({
+      userId: user.id,
+      $or: [
+        { title: { $regex: new RegExp(query, 'i') } },
+        { content: { $regex: new RegExp(query, 'i') } }
+      ]
+    })
+
+    return res.status(200).json({
+      notes: matchingNotes,
+      msg: 'Notes matching the search query retrived successfully'
+    })
+  } catch (err) {
+    return res.status(500).json({ error: err.message })
+  }
+}

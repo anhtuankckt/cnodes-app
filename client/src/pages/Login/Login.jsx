@@ -1,13 +1,15 @@
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import Navbar from '~/components/Navbar/Navbar'
 import PasswordInput from '~/input/PasswordInput'
+import axiosIntance from '~/services/axiosInstance'
 import { validateEmail } from '~/utils/helper'
 
 const Login = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState(null)
+  const navigate = useNavigate()
 
   const handleLogin = async (e) => {
     e.preventDefault()
@@ -25,6 +27,20 @@ const Login = () => {
     setError('')
 
     // Login API..
+    try {
+      const response = await axiosIntance.post('/auth/login',
+        { email, password })
+      if (response.data && response.data.accessToken) {
+        localStorage.setItem('token', response.data.accessToken)
+        navigate('/dashboard')
+      }
+    } catch (error) {
+      if (error.response && error.response.data && error.response.data.msg) {
+        setError(error.response.data.msg)
+      } else {
+        setError('An unexpected error occurred. Please try again')
+      }
+    }
   }
 
   return (

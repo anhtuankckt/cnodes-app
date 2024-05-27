@@ -1,18 +1,48 @@
 import React, { useState } from 'react'
 import TagInput from '~/input/TagInput'
 import { MdClose } from 'react-icons/md'
+import axiosIntance from '~/services/axiosInstance'
 
-const AddEditNotes = ({ noteData, type, onClose }) => {
-  const [title, setTitle] = useState('')
-  const [content, setContent] = useState('')
-  const [tags, setTags] = useState([])
+const AddEditNotes = ({ noteData, type, getAllNotes, onClose, showToastMessage }) => {
+  const [title, setTitle] = useState(noteData?.title || '')
+  const [content, setContent] = useState(noteData?.content || '')
+  const [tags, setTags] = useState(noteData?.tags || [])
   const [error, setError] = useState(null)
 
   // Add Note
-  const addNewNote = async () => { }
+  const addNewNote = async () => {
+    try {
+      const response = await axiosIntance.post('/note/add', { title, content, tags })
+
+      if (response.data && response.data.note) {
+        showToastMessage('Note added Successfully')
+        getAllNotes()
+        onClose()
+      }
+    } catch (error) {
+      if (error.response && error.response.data && error.response.data.msg) {
+        setError(error.response.data.msg)
+      }
+    }
+  }
 
   // Edit Note
-  const editNote = async () => { }
+  const editNote = async () => {
+    const nodeId = noteData._id
+    try {
+      const response = await axiosIntance.put(`/note/edit/${nodeId}`, { title, content, tags })
+
+      if (response.data && response.data.note) {
+        showToastMessage('Note updated Successfully')
+        getAllNotes()
+        onClose()
+      }
+    } catch (error) {
+      if (error.response && error.response.data && error.response.data.msg) {
+        setError(error.response.data.msg)
+      }
+    }
+  }
 
   const handleAddNote = () => {
     if (!title) {
@@ -45,7 +75,7 @@ const AddEditNotes = ({ noteData, type, onClose }) => {
         <input
           type="text"
           className='text-2xl text-slate-950 outline-none'
-          placeholder='Go To Gym At 5'
+          placeholder='Go to bed at 9 p.m'
           value={title}
           onChange={({ target }) => setTitle(target.value)}
         />
@@ -71,7 +101,7 @@ const AddEditNotes = ({ noteData, type, onClose }) => {
       {error && (<p className='text-red-500 text-xs pt-4'>{error}</p>)}
 
       <button className='btn-primary font-medium mt-5 p-3' onClick={handleAddNote}>
-        ADD
+        {type === 'edit' ? 'UPDATE' : 'ADD'}
       </button>
     </div>
   )

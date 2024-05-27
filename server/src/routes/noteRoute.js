@@ -18,4 +18,7 @@ router.delete('/delete/:noteId', authMiddleware.authenticateToken, noteControlle
 // Update isPinned Value
 router.put('/update-pinned/:noteId', authMiddleware.authenticateToken, noteController.updatePinned)
 
+// Search Notes
+router.get('/search-notes', authMiddleware.authenticateToken, noteController.search)
+
 module.exports = router

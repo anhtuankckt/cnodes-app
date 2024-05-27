@@ -17,17 +17,18 @@ exports.signup = async (req, res) => {
       email,
       password: hashedPassword
     })
-    const saveUser = await user.save()
+    await user.save()
 
     const accessToken = jwt.sign(
-      { id: saveUser._id },
+      { id: user._id },
       process.env.ACCESS_TOKEN_SECRET,
       { expiresIn: '1h' }
     )
-    saveUser.password = undefined
+
+    user.password = undefined
     return res.status(201).json({
       msg: 'Registrantion Successfull',
-      saveUser,
+      user,
       accessToken
     })
   } catch (err) {
